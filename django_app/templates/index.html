@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toxic Comment Classifier</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <div class="container">
+    <h2>Toxic Comment Classifier</h2>
+
+    <form method="POST" id="classifyForm">
+      {% csrf_token %}
+
+      <label class="field-label" for="comment">Enter comment</label>
+      <textarea
+        id="comment"
+        name="comment"
+        rows="5"
+        placeholder="Paste or type a comment to analyse…"
+        maxlength="1000"
+      ></textarea>
+      <div class="char-hint"><span id="charCount">0</span> / 1000</div>
+
+      <button type="submit" id="submitBtn">Analyse Comment</button>
+    </form>
+
+    {% if result %}
+      <!--
+        Add class "toxic" or "safe" on .result based on your Django view:
+        e.g. <div class="result {{ result|lower }}">
+      -->
+      <div class="result {{ result|lower }}" id="resultBlock">
+        <div class="result-label">Prediction</div>
+        <h3>{{ result }}</h3>
+
+        <div class="confidence-wrap">
+          <p>
+            Confidence
+            <span>{{ confidence }}%</span>
+          </p>
+          <div class="bar-track">
+            <!-- CSS var drives the fill animation -->
+            <div class="bar-fill" style="--pct: {{ confidence }}%;"></div>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="footer-tag">
+      <span class="dot"></span>
+      Model ready &nbsp;·&nbsp; NLP classifier v1
+    </div>
+  </div>
+
+  <script>
+    /* Character counter */
+    const ta    = document.getElementById('comment');
+    const count = document.getElementById('charCount');
+    const hint  = document.querySelector('.char-hint');
+
+    ta.addEventListener('input', () => {
+      const n = ta.value.length;
+      count.textContent = n;
+      hint.style.color  = n > 900 ? 'var(--accent)' : '';
+    });
+
+    /* Loading state on submit */
+    const form = document.getElementById('classifyForm');
+    const btn  = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', () => {
+      btn.classList.add('loading');
+      btn.textContent = 'Analysing…';
+    });
+  </script>
+
+</body>
+</html>
